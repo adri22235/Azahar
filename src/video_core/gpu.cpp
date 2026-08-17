@@ -279,9 +279,9 @@ void GPU::SetBufferSwap(u32 screen_id, const Service::GSP::FrameBufferInfo& info
         impl->debug_context->OnEvent(Pica::DebugContext::Event::BufferSwapped, nullptr);
     }
 
+    impl->system.perf_stats->EndGameFrame();
     if (screen_id == 0) {
         MicroProfileFlip();
-        impl->system.perf_stats->EndGameFrame();
         right_eye_disabler->ReportEndFrame();
     }
 }

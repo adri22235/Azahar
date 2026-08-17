@@ -365,8 +365,9 @@ public:
         return status == ThreadStatus::WaitSynchAll;
     }
 
-    bool CanSchedule() {
-        return static_cast<u32>(unschedule_mode) == 0;
+    bool CanSchedule() const {
+        return static_cast<u32>(unschedule_mode) == 0 &&
+               (status == ThreadStatus::Ready || status == ThreadStatus::Running);
     }
 
     bool SetUnscheduleMode(UnscheduleMode mode);

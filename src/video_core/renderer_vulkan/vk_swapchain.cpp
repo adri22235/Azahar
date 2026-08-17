@@ -81,9 +81,15 @@ void Swapchain::Create(u32 width_, u32 height_, vk::SurfaceKHR surface_, bool lo
         LOG_ERROR(Render_Vulkan, "Surface lost during swapchain creation");
         needs_recreation = true;
         return;
-    } catch (vk::SystemError& err) {
-        LOG_CRITICAL(Render_Vulkan, "{}", err.what());
-        throw;
+    } catch (vk::OutOfDateKHRError&) {
+        LOG_WARNING(Render_Vulkan, "Swapchain out of date during creation, will recreate");
+        needs_recreation = true;
+        return;
+    } catch (const vk::SystemError& err) {
+        LOG_WARNING(Render_Vulkan, "Swapchain creation failed with system error: {}, will retry",
+                    err.what());
+        needs_recreation = true;
+        return;
     }
 
     SetupImages();
@@ -137,8 +143,9 @@ void Swapchain::Present() {
         needs_recreation = true;
         return;
     } catch (const vk::SystemError& err) {
-        LOG_CRITICAL(Render_Vulkan, "Swapchain presentation failed {}", err.what());
-        UNREACHABLE();
+        LOG_WARNING(Render_Vulkan, "Swapchain presentation failed: {}, will recreate", err.what());
+        needs_recreation = true;
+        return;
     }
 
     frame_index = (frame_index + 1) % image_count;
@@ -237,6 +244,11 @@ void Swapchain::SetSurfaceProperties() {
                                 std::min(capabilities.maxImageExtent.width, width));
         extent.height = std::max(capabilities.minImageExtent.height,
                                  std::min(capabilities.maxImageExtent.height, height));
+    }
+
+    if (extent.width == 0 || extent.height == 0) {
+        needs_recreation = true;
+        return;
     }
 
     // Select number of images in swap chain, we prefer one buffer in the background to work on
