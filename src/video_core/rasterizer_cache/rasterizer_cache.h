@@ -594,6 +594,9 @@ SurfaceId RasterizerCache<T>::GetTextureSurface(const Pica::Texture::TextureInfo
         }
         const auto [src_surface_id, rect] =
             GetSurfaceSubRect(params, ScaleMatch::Ignore, true, initial_flags);
+        if (!src_surface_id) {
+            return NULL_SURFACE_ID;
+        }
         Surface& src_surface = slot_surfaces[src_surface_id];
 
         params.res_scale = src_surface.res_scale;
