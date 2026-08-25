@@ -19,7 +19,7 @@ struct TextureInfo {
     u32 height;
     ptrdiff_t stride;
     TexturingRegs::TextureFormat format;
-    bool is_shadow_source;
+    bool is_shadow_source = false;
 
     static TextureInfo FromPicaRegister(const TexturingRegs::TextureConfig& config,
                                         const TexturingRegs::TextureFormat& format);
