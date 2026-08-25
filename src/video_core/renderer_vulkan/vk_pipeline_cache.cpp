@@ -370,8 +370,16 @@ bool PipelineCache::BindPipeline(PipelineInfo& info, bool wait_built) {
         info.state.shader_ids[i] = shader_hashes[i];
     }
 
+    if (!curr_disk_cache) {
+        return false;
+    }
+
     GraphicsPipeline* const pipeline = curr_disk_cache->GetPipeline(info);
-    if (!pipeline->IsDone() && !pipeline->TryBuild(wait_built)) {
+    if (!pipeline || (!pipeline->IsDone() && !pipeline->TryBuild(wait_built))) {
+        return false;
+    }
+
+    if (!pipeline->Handle()) {
         return false;
     }
 
