@@ -356,11 +356,12 @@ bool CreateFullPath(const std::string& fullPath) {
     while (true) {
         std::size_t prev_pos = position;
         // Find next sub path
-        position = fullPath.find(DIR_SEP_CHR, prev_pos);
-
 #ifdef _WIN32
-        if (position == fullPath.npos)
-            position = fullPath.find(DIR_SEP_CHR_WIN, prev_pos);
+        const std::size_t pos_slash = fullPath.find('/', prev_pos);
+        const std::size_t pos_backslash = fullPath.find('\\', prev_pos);
+        position = std::min(pos_slash, pos_backslash);
+#else
+        position = fullPath.find(DIR_SEP_CHR, prev_pos);
 #endif
 
         // we're done, yay!

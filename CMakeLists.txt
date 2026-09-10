@@ -22,6 +22,18 @@ include(DownloadExternals)
 include(CMakeDependentOption)
 
 project(citra LANGUAGES C CXX ASM)
+
+# Feature #2219: Add USE_CCACHE option for faster recompilation
+option(USE_CCACHE "Use ccache for faster recompilation" ON)
+if (USE_CCACHE)
+    find_program(CCACHE_PROGRAM ccache)
+    if (CCACHE_PROGRAM)
+        set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+        set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+        message(STATUS "Using ccache: ${CCACHE_PROGRAM}")
+    endif()
+endif()
+
 # must be invoked after project() command when using CMAKE_TOOLCHAIN_FILE
 include(FindPkgConfig)
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" OR CMAKE_SYSTEM_NAME STREQUAL "iOS")
